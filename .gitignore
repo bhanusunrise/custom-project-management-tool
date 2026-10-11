@@ -1,0 +1,34 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Next.js and Node.js
+node_modules/
+.next/
+out/
+dist/
+coverage/
+
+# Java and Spring Boot
+target/
+build/
+.gradle/
+*.class
+
+# IDE and editor settings
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# AWS and infrastructure
+.aws/
+*.tfstate
+*.tfstate.*
