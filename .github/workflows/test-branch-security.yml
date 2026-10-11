@@ -1,0 +1,38 @@
+
+name: Test AWS Branch Security
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  test-branch-access:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Display current branch
+        run: echo "Branch = $GITHUB_REF"
+
+      - name: Try to assume AWS IAM role
+        id: aws_auth
+        continue-on-error: true
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          retry-max-attempts: 1
+
+      - name: Verify AWS denied access
+        shell: bash
+        run: |
+          if [ "${{ steps.aws_auth.outcome }}" = "failure" ]; then
+            echo "PASS: AWS role assumption was denied."
+          else
+            echo "FAIL: AWS allowed access from dev."
+            exit 1
+          fi
