@@ -169,7 +169,7 @@ This is the intended structure; directories will be added as development progres
 - [x] Complete the initial UI/UX design phase
 - [ ] Initialize the monorepo and application projects
 - [ ] Configure GitHub Actions CI checks
-- [ ] Configure AWS IAM, GitHub OIDC, and cost alerts
+- [x] Configure AWS IAM, GitHub OIDC, and cost alerts
 - [ ] Develop authentication and role-based access
 - [ ] Implement Spaces, projects, members, and tasks
 - [ ] Implement Kanban, comments, and dashboard
