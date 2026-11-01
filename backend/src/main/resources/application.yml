@@ -1,0 +1,22 @@
+
+spring:
+  application:
+    name: backend
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${COGNITO_ISSUER_URI}
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/projectflow
+    username: projectflow
+    password: ${DATABASE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+server:
+  port: 8080

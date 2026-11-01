@@ -1,0 +1,71 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: projectflow-postgres
+
+    environment:
+      POSTGRES_DB: projectflow
+      POSTGRES_USER: projectflow
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    ports:
+      - "127.0.0.1:5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U projectflow -d projectflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    container_name: projectflow-backend
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/projectflow
+      SPRING_DATASOURCE_USERNAME: projectflow
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
+      COGNITO_ISSUER_URI: ${COGNITO_ISSUER_URI}
+      COGNITO_USERINFO_URL: ${COGNITO_USERINFO_URL}
+
+    ports:
+      - "127.0.0.1:8080:8080"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+    container_name: projectflow-frontend
+
+    env_file:
+      - ./frontend/.env.local
+
+    environment:
+      NODE_ENV: production
+      NEXTAUTH_URL: http://localhost:3000
+      SPRING_BOOT_API_URL: http://backend:8080
+
+    ports:
+      - "127.0.0.1:3000:3000"
+
+    depends_on:
+      - backend
+
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
