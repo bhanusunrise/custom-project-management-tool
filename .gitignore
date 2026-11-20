@@ -32,3 +32,6 @@ Thumbs.db
 .aws/
 *.tfstate
 *.tfstate.*
+
+# Testing functions
+test.js

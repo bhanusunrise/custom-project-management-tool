@@ -43,12 +43,35 @@ jobs:
         run: docker build -t projectflow-frontend:ci .
 
   backend:
-    name: Spring Boot Build
+    name: Spring Boot Build and Test
     runs-on: ubuntu-latest
 
     defaults:
       run:
         working-directory: backend
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: projectflow_test
+          POSTGRES_USER: projectflow
+          POSTGRES_PASSWORD: ci_test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U projectflow -d projectflow_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/projectflow_test
+      SPRING_DATASOURCE_USERNAME: projectflow
+      SPRING_DATASOURCE_PASSWORD: ci_test_password
+
+      COGNITO_ISSUER_URI: ${{ vars.COGNITO_ISSUER_URI }}
+      COGNITO_USERINFO_URL: ${{ vars.COGNITO_USERINFO_URL }}
 
     steps:
       - name: Checkout repository
@@ -64,8 +87,8 @@ jobs:
       - name: Grant Gradle execution permission
         run: chmod +x gradlew
 
-      - name: Build Spring Boot
-        run: ./gradlew bootJar --no-daemon
+      - name: Build and test Spring Boot
+        run: ./gradlew clean build --no-daemon
 
       - name: Build backend Docker image
         run: docker build -t projectflow-backend:ci .
